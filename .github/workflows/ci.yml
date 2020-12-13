@@ -24,7 +24,7 @@ jobs:
           node-version: "14.15.1"
 
       - name: build client
-        run: docker-compose up --no-start client
+        run: docker-compose up -d client
 
       - name: install dependencies
         run: |
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: build api
-        run: docker-compose up --no-start api
+        run: docker-compose up -d api
 
       - name: create database
         run: docker-compose run api rake db:create
