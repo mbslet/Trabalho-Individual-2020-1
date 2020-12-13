@@ -1,0 +1,21 @@
+# Use the official image as a parent image.
+FROM ruby:2.5.7
+ENV BUNDLER_VERSION=2.1.4
+
+CMD echo "I'm running a ruby 2.5.7 image"
+
+# throw errors if Gemfile has been modified since Gemfile.lock
+RUN bundle config --global frozen 1
+
+RUN gem install bundler
+
+# Set the working directory.
+WORKDIR /api
+
+# Copy the file from your host to your current location.
+COPY Gemfile Gemfile.lock Rakefile .env ./
+
+# Run the command inside your image filesystem.
+RUN bundle install
+
+RUN rake db:create && rake db:mig

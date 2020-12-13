@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  
+  db:
+    restart: always
+    container_name: db
+    image: postgres:12
+    env_file: ./.env
+
+  api:
+    container_name: api
+    restart: always
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile.api
+    ports:
+      - 3000:3000
+    volumes:
+      - ./api:/api
+    depends_on:
+      - db  
+    links:
+      - db
+
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    command: ['sh', 'entrypoint.sh']
+    ports: 
+      - 8080:8080
+    volumes:
+      - ./client:/app
+      - node_modules:/app/node_modules
+    environment: 
+      - VUE_APP_URL=http://0.0.0.0:8080/
+      - VUE_APP_BASE_URL=http://0.0.0.0:8000/
+
+volumes: 
+  node_modules:
