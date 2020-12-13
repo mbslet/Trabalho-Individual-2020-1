@@ -15,27 +15,42 @@ on:
     
 
 jobs:
-  build:
+  client:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Ruby 
-      - uses: ruby/setup-ruby@21351ecc0a7c196081abca5dc55b08f085efe09a
+      - uses: actions/setup-node@v1
         with:
-          ruby-version: 2.6
-    
-      - name: Instalando dependências
-        run: bundle install
+          node-version: "14.15.1"
+
+      - name: build client
+        run: docker-compose up --no-start client
+
+      - name: install dependencies
+        run: |
+          cd client/
+          yarn
+      - name: run client tests
+        run: docker-compose run client yarn run test:unit
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: build api
+        run: docker-compose up --no-start api
+
+      - name: create database
+        run: docker-compose run api rake db:create
+
+      - name: create migrations
+        run: docker-compose run api rake db:migrate
+
+      - name: run api tests
+        run: docker-compose run api bundle exec rails test
       
-      - name: rodando db
-        run: rake db:create && rake db:migrate
       
-      - name: Rodando servidor
-        run: rails server
-    
-      - name: Rodando client
-        run: yarn install && yarn dev
       
       
 #   test:
